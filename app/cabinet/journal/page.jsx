@@ -1,4 +1,5 @@
 import { fetcher } from "@/lib/api"
+import { transliterate } from "@/lib/transliteration";
 import Link from "next/link";
 
 export default async function UserJournal() {
@@ -12,6 +13,14 @@ export default async function UserJournal() {
         },
     })
     const subjectsList = responseData.data.attributes.subjects.data;
+
+    //Tranliteration names of subjects for links
+    const subjectsWithTransliteration = subjectsList.map(subject => {
+        const name = subject.attributes.name;
+        const transName = transliterate(name);
+        return { ...subject, attributes: { ...subject.attributes, transName } };
+      });
+
     return (
         <div className="w-full">
             <h2 className="mx-auto text-center">Оберіть дисципліну з списку:</h2>
@@ -23,11 +32,11 @@ export default async function UserJournal() {
                 ))}
             </ul> */}
             <div className="mx-auto py-2 px-3 flex flex-row justify-between gap-y-8 w-[50%] flex-wrap">
-                {subjectsList.map((subject) => (
+                {subjectsWithTransliteration.map((subject) => (
                     <Link 
                         key={subject.id} 
                         className="p-5 flex flex-row rounded bg-emerald-100 border border-emerald-200 hover:scale-[1.02] transition-all"
-                        href={`journal/subject`}
+                        href={`journal/${subject.attributes.transName}`}
                         passHref
                     >
                         {subject.attributes.name}

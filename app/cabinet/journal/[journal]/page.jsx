@@ -34,9 +34,7 @@ export default async function SubjectJournal({ params }) {
                         <tr>
                             <td>Оцінка</td>
                             {lessonsDates.map(date => {
-                                console.log(date)
                                 const mark = marksData.data.find(item => item.attributes.lesson.data.attributes.lessonDate === date);
-                                console.log(mark);
                                 const isMissing = mark && mark.attributes.value.toLowerCase() === "в";
                                 const textColor = isMissing ? 'text-red-600 font-semibold' : ''
                                 return (

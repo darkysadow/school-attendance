@@ -7,9 +7,6 @@ export default async function SubjectJournal({ params }) {
     const subjectName = lessonsData.data[0].attributes.subject.data.attributes.name
     const lessonsDates = Array.from(new Set(lessonsData.data.map(item => item.attributes.lessonDate)))
     const marksData = await fetcher(`${process.env.STRAPI_API_URL}/marks?populate=*&filters[student][id][$eq]=${studentId}&filters[subject][id][$eq]=${subjectId}`)
-    //console.log(marksData.data[0].attributes.lesson.data.attributes.lessonDate === lessonsDates[0]);
-    //console.log(lessonsDates);
-    //console.log(marksData.data.find(item => item.attributes.lesson.data.attributes.lessonDate === lessonsDates[0]))
     if (!subjectName) {
         return (
             <div>

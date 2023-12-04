@@ -19,7 +19,11 @@ export default async function SubjectOfClass({ params }) {
     const lessonsDates = Array.from(new Set(lessonsData.map(item => item.attributes.lessonDate)))
 
     const studentsData = await fetcher(`${process.env.STRAPI_API_URL}/classes/${classId}?populate=students`)
-    const studentsList = studentsData.data.attributes.students.data
+    const studentsList = studentsData.data.attributes.students.data.slice().sort((a, b) => {
+        const nameA = a.attributes.name.toLowerCase();
+        const nameB = b.attributes.name.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
 
     const marksData = await fetcher(`${process.env.STRAPI_API_URL}/marks?populate=*&filters[subject][id][$eq]=${subjectId}`)
     
@@ -27,10 +31,10 @@ export default async function SubjectOfClass({ params }) {
         <div>
             <h1>Журнал дисципліни "{subjectData.name}" {getNumberOfClass(classData.admissionYear)}-{classData.classLetter} класу</h1>
             <TeacherJournal 
-                lessonsData={lessonsData}
-                lessonsDates={lessonsDates}
-                marksData={marksData}
-                studentsList={studentsList}
+                lData={lessonsData}
+                lDates={lessonsDates}
+                mData={marksData}
+                sList={studentsList}
             />
             
         </div>

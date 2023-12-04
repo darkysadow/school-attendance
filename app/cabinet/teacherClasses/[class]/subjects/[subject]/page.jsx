@@ -29,12 +29,17 @@ export default async function SubjectOfClass({ params }) {
     
     return (
         <div>
-            <h1>Журнал дисципліни "{subjectData.name}" {getNumberOfClass(classData.admissionYear)}-{classData.classLetter} класу</h1>
+            <h1
+                className="mb-5"
+            >
+                Журнал дисципліни "{subjectData.name}" {getNumberOfClass(classData.admissionYear)}-{classData.classLetter} класу
+            </h1>
             <TeacherJournal 
                 lData={lessonsData}
                 lDates={lessonsDates}
                 mData={marksData}
                 sList={studentsList}
+                subject={journalData.data[0].attributes.subject.data}
             />
             
         </div>

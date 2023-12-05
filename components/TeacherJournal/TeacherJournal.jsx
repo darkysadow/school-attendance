@@ -1,14 +1,19 @@
 'use client'
 
+import { addNewLesson } from "@/lib/actions/addNewLesson";
 import { correctMark, postNewMark } from "@/lib/actions/postNewMark";
-import { fetcher} from "@/lib/api";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material";
-import { useState } from "react";
+import { DatePicker, LocalizationProvider, StaticDatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import 'dayjs/locale/uk';
+import { useEffect, useState } from "react";
 
-const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
+const TeacherJournal = ({ lData, sList, lDates, mData, subject, journalID }) => {
     const [lessonsData, setLessonsData] = useState(lData);
     const [studentsList, setStudentsList] = useState(sList);
     const [lessonsDates, setLessonsDates] = useState(lDates);
+
+
     const [marksData, setMarksData] = useState(mData);
     const [selectedMark, setSelectedMark] = useState(null);
     const [selectedLesson, setSelectedLesson] = useState(null)
@@ -16,7 +21,9 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [newMarkValue, setNewMarkValue] = useState('');
     const [attendance, setAttendance] = useState('present');
-    
+    const [isAddLessonDialogOpen, setAddLessonDialogOpen] = useState(false)
+    const [datePickerValue, setDatePickerValue] = useState(null)
+
     const handleAttendanceChange = (event) => {
         setAttendance(event.target.value);
     };
@@ -28,10 +35,10 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
         setSelectedMark(mark)
         setDialogOpen(true)
     }
-    
+
 
     const saveNewMark = async () => {
-        if(selectedMark === undefined) {
+        if (selectedMark === undefined) {
             const response = await postNewMark({
                 value: !newMarkValue && attendance === "absent" ? "В" : newMarkValue,
                 student: selectedStudent.id,
@@ -42,7 +49,7 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
                 const newData = { ...prevData };
                 newData.data.push(response.data);
                 return newData;
-              })
+            })
         } else {
             await correctMark(selectedMark.id, {
                 value: !newMarkValue && attendance === "absent" ? "В" : newMarkValue.toString(),
@@ -50,15 +57,15 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
             setMarksData(prevData => {
                 const newData = { ...prevData };
                 const markIndex = newData.data.findIndex(mark => mark.id === selectedMark.id);
-            
+
                 if (markIndex !== -1) {
-                  newData.data[markIndex].attributes.value = newMarkValue;
+                    newData.data[markIndex].attributes.value = newMarkValue;
                 }
-            
+
                 return newData;
-              })
+            })
         }
-        
+
         setDialogOpen(false)
     }
 
@@ -72,9 +79,28 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
     const handleNewMarkChange = (e) => {
         setNewMarkValue(e.target.value)
     }
-    
+
+    const closeAddLessonDialog = () => {
+        setAddLessonDialogOpen(false)
+    }
+
+    const addLesson = async () => {
+        const inputDate = new Date(datePickerValue);
+
+        const year = inputDate.getFullYear();
+        const month = String(inputDate.getMonth() + 1).padStart(2, '0');
+        const day = String(inputDate.getDate()).padStart(2, '0');
+
+        const formattedDate = `${year}-${month}-${day}`;
+        const response = await addNewLesson(formattedDate, journalID, subject.id)
+        setLessonsData((prevLessons) => [...prevLessons, response.data])
+        setLessonsDates((prevDates) => [...prevDates, response.data.attributes.lessonDate]);
+        setAddLessonDialogOpen(false)
+    }
+
     return (
-        <>
+        <div className="flex flex-col w-auto">
+            <Button className="w-[300px] m-3" onClick={() => setAddLessonDialogOpen(true)}>Додати урок +</Button>
             <table className="border border-solid border-black">
                 <thead>
                     <tr>
@@ -135,7 +161,7 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
                         <FormControlLabel value="absent" control={<Radio />} label="Відсутн(я)ій" />
                     </RadioGroup>
                     <TextField
-                        label="New Mark Value"
+                        label="Оцінка"
                         variant="outlined"
                         value={newMarkValue}
                         onChange={handleNewMarkChange}
@@ -148,12 +174,35 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
                     <Button onClick={closeDialog} color="primary">
                         Відміна
                     </Button>
-                    <Button onClick={saveNewMark} color="primary">
+                    <Button onClick={saveNewMark} color="primary" disabled={!newMarkValue && attendance === 'present'}>
                         Виставити
                     </Button>
                 </DialogActions>
             </Dialog>
-        </>
+            <Dialog open={isAddLessonDialogOpen} onClose={closeAddLessonDialog} className="gap-4">
+                <DialogTitle>Додати урок</DialogTitle>
+                <DialogContent>
+                    <h3>Дисципліна: {subject.attributes.name}</h3>
+                    {/*Вибір дати уроку */}
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'uk'}>
+                        <DatePicker
+                            label="Controlled picker"
+                            value={datePickerValue}
+                            onChange={(newValue) => setDatePickerValue(newValue)}
+                        />
+                    </LocalizationProvider>
+
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeAddLessonDialog} color="primary">
+                        Відміна
+                    </Button>
+                    <Button onClick={addLesson} color="primary" disabled={!datePickerValue}>
+                        Додати
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </div>
     );
 }
 

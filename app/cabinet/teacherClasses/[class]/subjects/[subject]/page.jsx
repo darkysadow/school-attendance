@@ -13,6 +13,7 @@ export default async function SubjectOfClass({ params }) {
         },
 
     })
+    
     const subjectData = journalData.data[0].attributes.subject.data.attributes
     const classData = journalData.data[0].attributes.class.data.attributes
     const lessonsData = journalData.data[0].attributes.lessons.data
@@ -28,7 +29,7 @@ export default async function SubjectOfClass({ params }) {
     const marksData = await fetcher(`${process.env.STRAPI_API_URL}/marks?populate=*&filters[subject][id][$eq]=${subjectId}`, { cache: 'no-store' })
     
     return (
-        <div>
+        <div className="w-auto">
             <h1
                 className="mb-5"
             >
@@ -40,6 +41,7 @@ export default async function SubjectOfClass({ params }) {
                 mData={marksData}
                 sList={studentsList}
                 subject={journalData.data[0].attributes.subject.data}
+                journalID={journalData.data[0].id}
             />
 
         </div>

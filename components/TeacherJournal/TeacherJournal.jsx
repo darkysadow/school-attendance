@@ -1,5 +1,7 @@
 'use client'
 
+import { correctMark, postNewMark } from "@/lib/actions/postNewMark";
+import { fetcher} from "@/lib/api";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material";
 import { useState } from "react";
 
@@ -14,7 +16,7 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [newMarkValue, setNewMarkValue] = useState('');
     const [attendance, setAttendance] = useState('present');
-
+    
     const handleAttendanceChange = (event) => {
         setAttendance(event.target.value);
     };
@@ -23,10 +25,42 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
         mark ? setNewMarkValue(mark.attributes.value) : setNewMarkValue('')
         setSelectedStudent(student)
         setSelectedLesson(date)
+        setSelectedMark(mark)
         setDialogOpen(true)
     }
+    
 
-    const saveNewMark = () => {
+    const saveNewMark = async () => {
+        if(selectedMark === undefined) {
+            const response = await postNewMark({
+                value: !newMarkValue && attendance === "absent" ? "В" : newMarkValue,
+                student: selectedStudent.id,
+                subject: subject.id,
+                lesson: lessonsData.find(item => item.attributes.lessonDate === selectedLesson).id
+            })
+            setMarksData(prevData => {
+                const newData = { ...prevData };
+                newData.data.push(response.data);
+                return newData;
+              })
+        } else {
+            const response = await correctMark(selectedMark.id, {
+                value: !newMarkValue && attendance === "absent" ? "В" : newMarkValue.toString(),
+            })
+            console.log(newMarkValue);
+            console.log(response);
+            setMarksData(prevData => {
+                const newData = { ...prevData };
+                const markIndex = newData.data.findIndex(mark => mark.id === selectedMark.id);
+            
+                if (markIndex !== -1) {
+                  newData.data[markIndex].attributes.value = newMarkValue;
+                }
+            
+                return newData;
+              })
+        }
+        
         setDialogOpen(false)
     }
 
@@ -38,10 +72,9 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
     }
 
     const handleNewMarkChange = (e) => {
-        console.log(e.target.value);
         setNewMarkValue(e.target.value)
     }
-
+    
     return (
         <>
             <table className="border border-solid border-black">
@@ -51,7 +84,7 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
                         {lessonsData.map((date, colIndex) => (
                             <th
                                 key={date.attributes.lessonDate}
-                                className={`border border-solid border-black p-1 hover:bg-gray-200 ${colIndex === 0 ? 'hover:bg-blue-200' : ''}`}
+                                className={`border border-solid border-black p-1 text-[0.6em] hover:bg-gray-200 ${colIndex === 0 ? 'hover:bg-blue-200' : ''}`}
                                 dangerouslySetInnerHTML={{
                                     __html: new Date(date.attributes.lessonDate)
                                         .toLocaleDateString()
@@ -115,10 +148,10 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={closeDialog} color="primary">
-                        Cancel
+                        Відміна
                     </Button>
                     <Button onClick={saveNewMark} color="primary">
-                        Save
+                        Виставити
                     </Button>
                 </DialogActions>
             </Dialog>

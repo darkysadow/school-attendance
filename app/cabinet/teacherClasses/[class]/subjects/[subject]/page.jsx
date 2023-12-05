@@ -4,8 +4,8 @@ import { fetcher } from "@/lib/api"
 import { getNumberOfClass } from "@/lib/classNumber";
 
 export default async function SubjectOfClass({ params }) {
-    const classId = params.class
-    const subjectId = params.subject
+    const classId = params.class //1
+    const subjectId = params.subject //2
     const journalData = await fetcher(`${process.env.STRAPI_API_URL}/journals?populate=*&filters[class][id][$eq]=${classId}&filters[subject][id][$eq]=${subjectId}`, {
 
         headers: {
@@ -23,7 +23,7 @@ export default async function SubjectOfClass({ params }) {
         const nameA = a.attributes.name.toLowerCase();
         const nameB = b.attributes.name.toLowerCase();
         return nameA.localeCompare(nameB);
-      })
+    })
 
     const marksData = await fetcher(`${process.env.STRAPI_API_URL}/marks?populate=*&filters[subject][id][$eq]=${subjectId}`)
     
@@ -34,14 +34,14 @@ export default async function SubjectOfClass({ params }) {
             >
                 Журнал дисципліни "{subjectData.name}" {getNumberOfClass(classData.admissionYear)}-{classData.classLetter} класу
             </h1>
-            <TeacherJournal 
+            <TeacherJournal
                 lData={lessonsData}
                 lDates={lessonsDates}
                 mData={marksData}
                 sList={studentsList}
                 subject={journalData.data[0].attributes.subject.data}
             />
-            
+
         </div>
     )
 }

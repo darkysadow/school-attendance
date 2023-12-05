@@ -8,7 +8,6 @@ export default async function TeacherClass({ params }) {
     const classData = await fetcher(`${process.env.STRAPI_API_URL}/classes/${classId}`)
     const disciplinesData = await fetcher(`${process.env.STRAPI_API_URL}/subjects?filters[class][id][$eq]=${classId}&filters[teacher][id][$eq]=${teacherId}`)
 
-    console.log(disciplinesData.data);
     return (
         <div>
             <h1>В класі {getNumberOfClass(classData.data.attributes.admissionYear)}-{classData.data.attributes.classLetter} Ви викладаєте такі дисципліни:</h1>

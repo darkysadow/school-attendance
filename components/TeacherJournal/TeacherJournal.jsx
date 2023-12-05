@@ -44,11 +44,9 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject }) => {
                 return newData;
               })
         } else {
-            const response = await correctMark(selectedMark.id, {
+            await correctMark(selectedMark.id, {
                 value: !newMarkValue && attendance === "absent" ? "В" : newMarkValue.toString(),
             })
-            console.log(newMarkValue);
-            console.log(response);
             setMarksData(prevData => {
                 const newData = { ...prevData };
                 const markIndex = newData.data.findIndex(mark => mark.id === selectedMark.id);

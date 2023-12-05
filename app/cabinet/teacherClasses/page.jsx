@@ -14,7 +14,6 @@ export default async function UserJournal() {
         },
     })
     const classesList = responseData.data.attributes.classes.data
-    console.log(classesList);
     
     return (
         <div className="w-full">

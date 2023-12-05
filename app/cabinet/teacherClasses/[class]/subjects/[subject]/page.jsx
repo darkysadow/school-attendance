@@ -25,7 +25,7 @@ export default async function SubjectOfClass({ params }) {
         return nameA.localeCompare(nameB);
     })
 
-    const marksData = await fetcher(`${process.env.STRAPI_API_URL}/marks?populate=*&filters[subject][id][$eq]=${subjectId}`)
+    const marksData = await fetcher(`${process.env.STRAPI_API_URL}/marks?populate=*&filters[subject][id][$eq]=${subjectId}`, { cache: 'no-store' })
     
     return (
         <div>

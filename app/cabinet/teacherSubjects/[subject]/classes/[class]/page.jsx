@@ -3,7 +3,8 @@ import TeacherJournal from "@/components/TeacherJournal/TeacherJournal";
 import { fetcher } from "@/lib/api"
 import { getNumberOfClass } from "@/lib/classNumber";
 
-export default async function SubjectOfClass({ params }) {
+export default async function ClassOfSubject({ params }) {
+    console.log(params);
     const classId = params.class //1
     const subjectId = params.subject //2
     const journalData = await fetcher(`${process.env.STRAPI_API_URL}/journals?populate=*&filters[class][id][$eq]=${classId}&filters[subject][id][$eq]=${subjectId}`, {

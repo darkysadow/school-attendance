@@ -99,7 +99,7 @@ const TeacherJournal = ({ lData, sList, lDates, mData, subject, journalID }) => 
     }
 
     return (
-        <div className="flex flex-col w-auto">
+        <div className="">
             <Button className="w-[300px] m-3" onClick={() => setAddLessonDialogOpen(true)}>Додати урок +</Button>
             <table className="border border-solid border-black">
                 <thead>

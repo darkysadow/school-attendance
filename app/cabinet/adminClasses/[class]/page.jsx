@@ -21,7 +21,7 @@ export default async function AdminClass({params}) {
         return 0;
       });
     const subjectsList = await fetcher(`${process.env.STRAPI_API_URL}/subjects?populate=teachers&filters[class][id][$eq]=${classId}`).then((response) => response.data)
-
+    const allSubjects = await fetcher(`${process.env.STRAPI_API_URL}/subjects?populate=teachers`).then(response => response.data)
     return(
         <div className="w-full flex flex-col">
             <h1 className="text-xl">{classNumber}-{classLetter} клас. <span className="text-slate-500 font-light">ID: {responseData.data.id}</span></h1>
@@ -35,7 +35,13 @@ export default async function AdminClass({params}) {
             </div>
             <div className="my-5">
                 <h2>Список дисциплін класу:</h2>
-                <AdminClassSubjects subjectsL={subjectsList} />
+                <AdminClassSubjects 
+                    subjectsL={subjectsList} 
+                    classId={classId} 
+                    classLetter={classLetter}
+                    classNumber={classNumber}
+                    allSubjects={allSubjects}
+                />
             </div>
         </div>
     )

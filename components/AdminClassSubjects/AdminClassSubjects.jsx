@@ -13,7 +13,7 @@ const AdminClassSubjects = ({subjectsL}) => {
                             key={subject.id} 
                             className="my-2"
                         >
-                            {index+1}. {subject.attributes.name} <span className="text-slate-500 font-light">ID дисципліни: {subject.id}</span> <br /> <span className="text-cyan-500 ml-4"><span className="text-red-400">Викладач:</span> {subject.attributes.teacher.data.attributes.name} <span className="text-slate-500 font-light">ID викладача: {subject.attributes.teacher.data.id}</span></span>
+                            {index+1}. {subject.attributes.name} <span className="text-slate-500 font-light">ID дисципліни: {subject.id}</span> <br /> <span className="text-cyan-500 ml-4"><span className="text-red-400">{subject.attributes.teachers.data.length>1 ? 'Викладачі' : 'Викладач'}</span> {subject.attributes.teachers.data.map(teacher => (<div key={teacher.id} className="ml-5">{teacher.attributes.name} <span className="text-slate-500 font-light">ID викладача: {teacher?.id}</span><br/></div>))} </span>
                         </li>
                     )) : <li>Класу не призначено дисциплін!</li>}
                     

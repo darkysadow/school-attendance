@@ -2,8 +2,9 @@
 
 import { addNewSubject } from "@/lib/actions/addNewSubject";
 import addTeacherToSubject from "@/lib/actions/addTeacherToSubject";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Input, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import deleteTeacherFromSubject from "@/lib/actions/deleteTeacherFromSubject";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { useState } from "react";
 
 const AdminSubjectsList = ({ subjectsL, teachersL }) => {
     const [subjectsList, setSubjectsList] = useState(subjectsL)
@@ -13,6 +14,8 @@ const AdminSubjectsList = ({ subjectsL, teachersL }) => {
     const [isAddTeacherToSubjectDialogOpen, setAddTeacherToSubjectDialogOpen] = useState(false)
     const [selectedSubject, setSelectedSubject] = useState(undefined)
     const [teacherSelectedToAdd, setTeacherSelectedToAdd] = useState('')
+    const [teacherSelectedToDelete, setTeacherSelectedToDelete] = useState(undefined)
+    const [isDeleteTeacherFromSubjectDialogOpen, setDeleteTeacherFromSubjectDialogOpen] = useState(false)
 
     const closeAddSubjectDialog = () => {
         setAddSubjectDialogOpen(false)
@@ -24,6 +27,10 @@ const AdminSubjectsList = ({ subjectsL, teachersL }) => {
         setSelectedSubject(undefined)
         setTeacherSelectedToAdd('')
         setAddTeacherToSubjectDialogOpen(false)
+    }
+    
+    const closeDeleteTeacherFromSubjectDialog = () => {
+        setDeleteTeacherFromSubjectDialogOpen(false)
     }
 
     const handleAddNewSubject = async () => {
@@ -39,6 +46,12 @@ const AdminSubjectsList = ({ subjectsL, teachersL }) => {
         setAddTeacherToSubjectDialogOpen(true)
     }
 
+    const handleDeleteTeacher = (subject, teacher) => {
+        setSelectedSubject(subject)
+        setTeacherSelectedToDelete(teacher)
+        setDeleteTeacherFromSubjectDialogOpen(true)
+    }
+
     const addTeacherToSubjectAdmin = async () => {
         const responseData = await addTeacherToSubject(teacherSelectedToAdd.id, selectedSubject.id)
         const updatedSubjectsList = subjectsList.map(subject => {
@@ -46,6 +59,19 @@ const AdminSubjectsList = ({ subjectsL, teachersL }) => {
         });
         setSubjectsList(updatedSubjectsList);
         setAddTeacherToSubjectDialogOpen(false)
+        setSelectedSubject(undefined)
+        setTeacherSelectedToAdd("")
+    }
+
+    const deleteTeacherFromSubjectAdmin = async () => {
+        const responseData = await deleteTeacherFromSubject(teacherSelectedToDelete.id, selectedSubject.id)
+        const updatedSubjectsList = subjectsList.map(subject => {
+            return subject.id === responseData.data.id ? responseData.data : subject;
+        });
+        setSubjectsList(updatedSubjectsList);
+        setDeleteTeacherFromSubjectDialogOpen(false)
+        setSelectedSubject(undefined)
+        setTeacherSelectedToDelete(undefined)
     }
 
 
@@ -64,8 +90,8 @@ const AdminSubjectsList = ({ subjectsL, teachersL }) => {
                         {subject.attributes.teachers.data.map((teacher) =>
                             
                             <div key={teacher.id}>
-                                <span className="ml-4 text-cyan-500">{teacher.attributes.name} <span className="text-slate-500 font-light">ID: {teacher.id}</span></span>
-                                <br/>
+                                <span className="ml-4 text-cyan-500">{teacher.attributes.name} <span className="text-slate-500 font-light">ID: {teacher.id}</span></span><Button onClick={() => handleDeleteTeacher(subject, teacher)} color={"error"}>╳</Button>
+                                
                             </div>
                             )}
                     </li>
@@ -115,6 +141,17 @@ const AdminSubjectsList = ({ subjectsL, teachersL }) => {
                         <Button onClick={closeAddTeacherToSubjectDialog}>Закрити</Button>
                         <Button onClick={addTeacherToSubjectAdmin} disabled={teacherSelectedToAdd === '' || teacherSelectedToAdd === undefined}>Додати</Button>
                     </DialogActions>
+            </Dialog>
+            <Dialog open={isDeleteTeacherFromSubjectDialogOpen} onClose={closeDeleteTeacherFromSubjectDialog}>
+                <DialogTitle>Видалити вчителя</DialogTitle>
+                <DialogContent>
+                Ви дійсно хочете видалити вчителя {teacherSelectedToDelete?.attributes.name} <span className="text-slate-500 font-light"> ID: {teacherSelectedToDelete?.id}</span><br/>
+                з дисципліни {selectedSubject?.attributes.name} <span className="text-slate-500 font-light"> ID: {selectedSubject?.id}</span>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeDeleteTeacherFromSubjectDialog}>Закрити</Button>
+                    <Button onClick={deleteTeacherFromSubjectAdmin}>Видалити</Button>
+                </DialogActions>
             </Dialog>
         </div>
     )

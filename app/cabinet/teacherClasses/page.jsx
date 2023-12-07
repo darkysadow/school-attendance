@@ -45,7 +45,7 @@ export default function UserJournal() {
         if (role === "Teacher" && !isRoleLoading) {
             if(classesList?.data?.length === 0 && !isClassesLoading) {
                 return(
-                    <div>Вам не призначено дисциплін!</div>
+                    <div>Вам не призначено класів!</div>
                 )
             } else if(!isClassesLoading) {
                 return (

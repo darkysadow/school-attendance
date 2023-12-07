@@ -26,20 +26,8 @@ const UserSidebar = () => {
     }, [user])
     const parentLinks = [
         {
-            name: 'subjects',
-            title: 'Предмети',
-        },
-        {
             name: 'journal',
             title: 'Журнал',
-        },
-        {
-            name: 'notifications',
-            title: 'Повідомлення',
-        },
-        {
-            name: 'remarks',
-            title: 'Зауваження',
         }
     ]
 

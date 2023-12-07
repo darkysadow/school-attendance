@@ -1,6 +1,5 @@
 "use client"
 
-
 import { tryLogin } from "@/lib/actions/authorisation"
 import { setToken, unsetToken } from "@/lib/auth"
 import { UserProvider, useFetchUser, useUser } from "@/lib/authProvider"
@@ -45,7 +44,7 @@ const Header = (props) => {
     const handleLogout = () => {
         const logoutResult = unsetToken()
         if(logoutResult) {
-            router.push('/')
+            location.reload()
         }
     }
 

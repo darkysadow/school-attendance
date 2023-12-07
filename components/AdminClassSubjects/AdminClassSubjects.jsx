@@ -1,6 +1,7 @@
 "use client"
 
 import addSubjectToClass from "@/lib/actions/addSubjectToClass";
+import deleteSubjectFromClass from "@/lib/actions/deleteSubjectFromClass";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -9,6 +10,8 @@ const AdminClassSubjects = ({ subjectsL, classId, classLetter, classNumber, allS
     const [isAddDialogOpen, setAddDialogOpen] = useState(false)
     const [restSubjectsList, setRestSubjectsList] = useState(allSubjects)
     const [subjectSelectedToAdd, setSubjectSelectedToAdd] = useState('')
+    const [subjectToDelete, setSubjectToDelete] = useState(undefined)
+    const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
     useEffect(() => {
         const subjectsIds = subjectsList.map(subject => subject.id);
@@ -19,6 +22,16 @@ const AdminClassSubjects = ({ subjectsL, classId, classLetter, classNumber, allS
     const closeAddDialog = () => {
         setSubjectSelectedToAdd('')
         setAddDialogOpen(false)
+    }
+
+    const closeDeleteDialog = () => {
+        setSubjectToDelete(undefined)
+        setDeleteDialogOpen(false)
+    }
+
+    const handleOpenDeleteDialog = (subject) => {
+        setSubjectToDelete(subject)
+        setDeleteDialogOpen(true)
     }
 
     const handleOpenAddDialog = () => {
@@ -33,6 +46,12 @@ const AdminClassSubjects = ({ subjectsL, classId, classLetter, classNumber, allS
         closeAddDialog()
     }
 
+    const handleDeleteSubject = async () => {
+        const responseData = await deleteSubjectFromClass(classId, subjectToDelete.id)
+        setSubjectsList(prevData => prevData.filter(subject => subject.id !== responseData.data.id))
+        closeDeleteDialog()
+    }
+
     return (
         <div>
             <ul className="ml-4 p-5">
@@ -41,7 +60,10 @@ const AdminClassSubjects = ({ subjectsL, classId, classLetter, classNumber, allS
                         key={subject.id}
                         className="my-2"
                     >
-                        {index + 1}. {subject.attributes.name} <span className="text-slate-500 font-light">ID дисципліни: {subject.id}</span> <br /> <span className="text-cyan-500 ml-4"><span className="text-red-400">{subject.attributes.teachers.data.length > 1 ? 'Викладачі' : 'Викладач'}</span> {subject.attributes.teachers.data.map(teacher => (<div key={teacher.id} className="ml-5">{teacher.attributes.name} <span className="text-slate-500 font-light">ID викладача: {teacher?.id}</span><br /></div>))} </span>
+                        <div className="flex flex-row">
+                            <div>{index + 1}. {subject.attributes.name} <span className="text-slate-500 font-light">ID дисципліни: {subject.id}</span> <br /> <span className="text-cyan-500 ml-4"><span className="text-red-400">{subject.attributes.teachers.data.length > 1 ? 'Викладачі' : 'Викладач'}</span> {subject.attributes.teachers.data.map(teacher => (<div key={teacher.id} className="ml-5">{teacher.attributes.name} <span className="text-slate-500 font-light">ID викладача: {teacher?.id}</span><br /></div>))} </span></div>
+                            <Button color={'error'} className="ml-6" onClick={() => handleOpenDeleteDialog(subject)}>╳</Button>
+                        </div>
                     </li>
                 )) : <li>Класу не призначено дисциплін!</li>}
                 <Button onClick={() => handleOpenAddDialog()}>Додати дисципліну +</Button>
@@ -72,6 +94,18 @@ const AdminClassSubjects = ({ subjectsL, classId, classLetter, classNumber, allS
                 <DialogActions>
                     <Button onClick={closeAddDialog}>Закрити</Button>
                     <Button onClick={handleAddSubject} disabled={subjectSelectedToAdd === '' || subjectSelectedToAdd === undefined}>Додати</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={isDeleteDialogOpen} onClose={closeDeleteDialog}>
+                <DialogTitle>Видалити предмет</DialogTitle>
+                <DialogContent>
+                    Клас: {classNumber}-{classLetter} <span className="text-slate-500 font-light">ID: {classId}</span><br/>
+                    Ви дійсно хочете видалити дисципліну <br/>
+                    {subjectToDelete?.attributes?.name} <span className="text-slate-500 font-light">ID: {subjectToDelete?.id}</span>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeDeleteDialog}>Відміна</Button>
+                    <Button onClick={handleDeleteSubject}>Видалити</Button>
                 </DialogActions>
             </Dialog>
         </div>

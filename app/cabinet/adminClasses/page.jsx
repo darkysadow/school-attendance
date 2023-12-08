@@ -68,7 +68,7 @@ export default function AdminClasses() {
             }
 
         } else if (role !== "Administrator" && !isRoleLoading) {
-            return <div>Ви не авторизовані в профілі вчителя!</div>;
+            return <div>Ви не авторизовані в профілі адміністратора!</div>;
         } else {
             return <Preloader />
         }

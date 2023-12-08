@@ -46,7 +46,7 @@ export default function AdminSubjects() {
         if (role === "Administrator" && !isRoleLoading) {
             if (subjectsList?.length === 0 && !isSubjectsLoading) {
                 return (
-                    <div>Список класів пустий!</div>
+                    <div>Список дисциплін пустий!</div>
                 )
             } else if (!isSubjectsLoading) {
                 return(
